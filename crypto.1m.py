@@ -8,6 +8,7 @@ import json
 import locale
 import os
 import yaml
+import math
 
 
 locale.setlocale(locale.LC_ALL, 'en_US')
@@ -43,7 +44,7 @@ currencies = [
     {
         "code": "xem",
         "url": "https://api.coinmarketcap.com/v1/ticker/nem/?convert=EUR",
-        "getRate": lambda value: float(value[0]['price_eur']),
+        "getRate": lambda value: float(value[0]['price_eur'] if value[0]['price_eur'] else "NaN"),
         "quantity": eval('{}'.format(cfg['xem']['quantity'])),
         "eurQty": eval('{}'.format(cfg['xem']['eurQty']))
     },
@@ -51,14 +52,14 @@ currencies = [
         "code": "xlm",
         "url":  "https://api.coinmarketcap.com/v1/ticker/stellar/?convert=EUR",
         # "url": "https://coinmarketcap-nexuist.rhcloud.com/api/xlm",
-        "getRate": lambda value: float(value[0]['price_eur']),
+        "getRate": lambda value: float(value[0]['price_eur'] if value[0]['price_eur'] else "NaN"),
         "quantity": eval('{}'.format(cfg['xlm']['quantity'])),
         "eurQty": eval('{}'.format(cfg['xlm']['eurQty']))
     },
     {
         "code": "bcn",
         "url": "https://api.coinmarketcap.com/v1/ticker/bytecoin-bcn/?convert=EUR",
-        "getRate": lambda value: float(value[0]['price_eur']),
+        "getRate": lambda value: float(value[0]['price_eur'] if value[0]['price_eur'] else "NaN"),
         "quantity": eval('{}'.format(cfg['bcn']['quantity'])),
         "eurQty": eval('{}'.format(cfg['bcn']['eurQty']))
     }
@@ -76,28 +77,33 @@ for key in sorted(currencies, key=lambda x: x["eurQty"], reverse=True):
     currency = key
     response = urllib.request.urlopen(currency["url"])
     result = json.loads(response.read())
-    boughtRate = currency["eurQty"] / currency["quantity"]
-    currentRate = currency["currRate"] = currency['getRate'](result)
-    currentAmount = (currency["currRate"] * currency["quantity"])
-    boughtAmount = currency["eurQty"]
-    currency["currProfit"] = diff = currentAmount - boughtAmount
-    currentProfitPerc = currency["currProfitPerc"] = diff / boughtAmount * 100
-    totals["total"] += diff
-    if currency["code"] != "eth":
-        totals["noEtherTotalDiff"] += diff
-        totals["noEtherQtyEuro"] += boughtAmount
 
-    currency["print"] = "€{:<18}{:<15}{}%| color={}".format(
-        locale.format("%.2f", diff, grouping=True),
-        locale.format("%.4f", currentRate, grouping=True),
-        locale.format("%.2f", currentProfitPerc, grouping=True),
-        'green' if diff > 0 else 'red'
-    )
+    if not math.isnan(currency['getRate'](result)):
+        boughtRate = currency["eurQty"] / currency["quantity"]
+        currentRate = currency["currRate"] = currency['getRate'](result)
+        currentAmount = (currency["currRate"] * currency["quantity"])
+        boughtAmount = currency["eurQty"]
+        currency["currProfit"] = diff = currentAmount - boughtAmount
+        currentProfitPerc = currency["currProfitPerc"] = diff / boughtAmount * 100
+        totals["total"] += diff
+        if currency["code"] != "eth":
+            totals["noEtherTotalDiff"] += diff
+            totals["noEtherQtyEuro"] += boughtAmount
 
+        currency["print"] = "€{:<18}{:<15}{}%| color={}".format(
+            locale.format("%.2f", diff, grouping=True),
+            locale.format("%.4f", currentRate, grouping=True),
+            locale.format("%.2f", currentProfitPerc, grouping=True),
+            'green' if diff > 0 else 'red'
+        )
+       
+    else:
+        currency["print"] = "nan"
+    
 totals["print"] = 'Total\n€{:<18}({}%)'.format(
     locale.format("%.2f", totals["total"], grouping=True),
-    locale.format("%.2f", totals["noEtherTotalDiff"] /
-                  totals["noEtherQtyEuro"] * 100, grouping=True)
+    locale.format("%.2f",  totals["noEtherTotalDiff"] /
+                  (totals["noEtherQtyEuro"] * 100), grouping=True)
 )
 
 # printing
@@ -105,7 +111,7 @@ print("{}% ({})%|color={}".format(
     locale.format("%.2f", currencies[0]
                   ["currProfitPerc"], grouping=True),
     locale.format("%.2f", totals["noEtherTotalDiff"] /
-                  totals["noEtherQtyEuro"] * 100, grouping=True),
+                  (totals["noEtherQtyEuro"] * 100), grouping=True),
     'green' if totals["noEtherTotalDiff"] > 0 else 'red'
 ))
 print("---")
