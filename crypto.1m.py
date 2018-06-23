@@ -25,6 +25,14 @@ currencies = [
         "eurQty": eval('{}'.format(cfg['eth']['eurQty']))
     },
     {
+        "code": "eos",
+        "url":  "https://api.kraken.com/0/public/Ticker?pair=EOSEUR",
+        # "url": "https://coinmarketcap-nexuist.rhcloud.com/api/eth",
+        "getRate": lambda value: float(value['result']['EOSEUR']['c'][0]),
+        "quantity": eval('{}'.format(cfg['eos']['quantity'])),
+        "eurQty": eval('{}'.format(cfg['eos']['eurQty']))
+    },
+    {
         "code": "xbt",
         "url":  "https://api.kraken.com/0/public/Ticker?pair=XXBTZEUR",
         # "url": "https://coinmarketcap-nexuist.rhcloud.com/api/eth",
