@@ -1,5 +1,5 @@
 #!/usr/bin/env PYTHONIOENCODING=UTF-8 /usr/local/bin/python3
-# pylint: disable=C0103,W0123
+# pylint3: disable=C0103,W0123
 
 import urllib.request
 import urllib.parse
@@ -96,23 +96,23 @@ for key in sorted(currencies, key=lambda x: x["eurQty"], reverse=True):
         totals["noEtherQtyEuro"] += boughtAmount
 
     currency["print"] = "€{:<18}{:<15}{}%| color={}".format(
-        locale.format("%.2f", diff, grouping=True),
-        locale.format("%.4f", currentRate, grouping=True),
-        locale.format("%.2f", currentProfitPerc, grouping=True),
+        locale.format_string("%.2f", diff, grouping=True),
+        locale.format_string("%.4f", currentRate, grouping=True),
+        locale.format_string("%.2f", currentProfitPerc, grouping=True),
         'green' if diff > 0 else 'red'
     )
 
 totals["print"] = 'Total\n€{:<18}({}%)'.format(
-    locale.format("%.2f", totals["total"], grouping=True),
-    locale.format("%.2f", totals["noEtherTotalDiff"] /
+    locale.format_string("%.2f", totals["total"], grouping=True),
+    locale.format_string("%.2f", totals["noEtherTotalDiff"] /
                   totals["noEtherQtyEuro"] * 100, grouping=True)
 )
 
 # printing
 print("{}% ({})%|color={}".format(
-    locale.format("%.2f", currencies[0]
+    locale.format_string("%.2f", currencies[0]
                   ["currProfitPerc"], grouping=True),
-    locale.format("%.2f", totals["noEtherTotalDiff"] /
+    locale.format_string("%.2f", totals["noEtherTotalDiff"] /
                   totals["noEtherQtyEuro"] * 100, grouping=True),
     'green' if totals["noEtherTotalDiff"] > 0 else 'red'
 ))
