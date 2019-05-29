@@ -24,18 +24,24 @@ currencies = [
         "quantity": eval('{}'.format(cfg['eth']['quantity'])),
         "eurQty": eval('{}'.format(cfg['eth']['eurQty']))
     },
+    # {
+    #     "code": "eos",
+    #     "url":  "https://api.kraken.com/0/public/Ticker?pair=EOSEUR",
+    #     # "url": "https://coinmarketcap-nexuist.rhcloud.com/api/eth",
+    #     "getRate": lambda value: float(value['result']['EOSEUR']['c'][0]),
+    #     "quantity": eval('{}'.format(cfg['eos']['quantity'])),
+    #     "eurQty": eval('{}'.format(cfg['eos']['eurQty']))
+    # },
     {
-        "code": "eos",
+        "code": "eur",
         "url":  "https://api.kraken.com/0/public/Ticker?pair=EOSEUR",
-        # "url": "https://coinmarketcap-nexuist.rhcloud.com/api/eth",
-        "getRate": lambda value: float(value['result']['EOSEUR']['c'][0]),
-        "quantity": eval('{}'.format(cfg['eos']['quantity'])),
-        "eurQty": eval('{}'.format(cfg['eos']['eurQty']))
+        "getRate": lambda value: float(1.0),
+        "quantity": eval('{}'.format(cfg['eur']['quantity'])),
+        "eurQty": eval('{}'.format(cfg['eur']['eurQty']))
     },
     {
         "code": "xbt",
         "url":  "https://api.kraken.com/0/public/Ticker?pair=XXBTZEUR",
-        # "url": "https://coinmarketcap-nexuist.rhcloud.com/api/eth",
         "getRate": lambda value: float(value['result']['XXBTZEUR']['c'][0]),
         "quantity": eval('{}'.format(cfg['xbt']['quantity'])),
         "eurQty": eval('{}'.format(cfg['xbt']['eurQty']))
@@ -43,7 +49,6 @@ currencies = [
     {
         "code": "xrp",
         "url":  "https://api.kraken.com/0/public/Ticker?pair=XXRPZEUR",
-        # "url": "https://coinmarketcap-nexuist.rhcloud.com/api/xrp",
         "getRate": lambda value: float(value['result']['XXRPZEUR']['c'][0]),
         "quantity": eval('{}'.format(cfg['xrp']['quantity'])),
         "eurQty": eval('{}'.format(cfg['xrp']['eurQty']))
