@@ -11,9 +11,10 @@ import yaml
 
 
 locale.setlocale(locale.LC_ALL, 'en_US')
-
+yaml.warnings({'YAMLLoadWarning':False})
 with open(os.path.dirname(os.path.abspath(__file__)) + "/.env.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
+
 
 currencies = [
     {
