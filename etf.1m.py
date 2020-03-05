@@ -7,7 +7,7 @@ import urllib.error
 import json
 
 
-url = 'https://query1.finance.yahoo.com/v8/finance/chart/VWRL.AS?region=US&lang=en-US&includePrePost=false&interval=2m&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance'
+url = 'https://query1.finance.yahoo.com/v8/finance/chart/VWRL.AS'
 
 response = urllib.request.urlopen(url)
 result = json.loads(response.read())
