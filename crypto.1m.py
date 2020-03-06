@@ -107,7 +107,7 @@ for key in sorted(currencies, key=lambda x: x["eurQty"], reverse=True):
             locale.format_string("%.2f", currentProfitPerc, grouping=True),
             'green' if diff > 0 else 'red'
         )
-    except urllib.error.HTTPError as e:
+    except:
         currency["print"] = "N/A| color=red"
         totals["total"] += 0
 
