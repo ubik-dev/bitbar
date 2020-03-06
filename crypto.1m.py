@@ -11,9 +11,10 @@ import yaml
 
 
 locale.setlocale(locale.LC_ALL, 'en_US')
-yaml.warnings({'YAMLLoadWarning':False})
+yaml.warnings({'YAMLLoadWarning': False})
 with open(os.path.dirname(os.path.abspath(__file__)) + "/.env.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
+
 
 currencies = [
     {
@@ -55,23 +56,23 @@ currencies = [
     },
     {
         "code": "xem",
-        "url": "https://api.coinmarketcap.com/v1/ticker/nem/?convert=EUR",
-        "getRate": lambda value: float(value[0]['price_eur']),
+        "url": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?convert=EUR&symbol=XEM",
+        "getRate": lambda value: float(value['data']['XEM']['quote']['EUR']['price']),
         "quantity": eval('{}'.format(cfg['xem']['quantity'])),
         "eurQty": eval('{}'.format(cfg['xem']['eurQty']))
     },
     {
         "code": "xlm",
-        "url":  "https://api.coinmarketcap.com/v1/ticker/stellar/?convert=EUR",
-        # "url": "https://coinmarketcap-nexuist.rhcloud.com/api/xlm",
-        "getRate": lambda value: float(value[0]['price_eur']),
+        # "url":  "https://api.coinmarketcap.com/v1/ticker/stellar/?convert=EUR",
+        "url": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?convert=EUR&symbol=XLM",
+        "getRate": lambda value: float(value['data']['XLM']['quote']['EUR']['price']),
         "quantity": eval('{}'.format(cfg['xlm']['quantity'])),
         "eurQty": eval('{}'.format(cfg['xlm']['eurQty']))
     },
     {
         "code": "bcn",
-        "url": "https://api.coinmarketcap.com/v1/ticker/bytecoin-bcn/?convert=EUR",
-        "getRate": lambda value: float(value[0]['price_eur']),
+        "url": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?convert=EUR&symbol=BCN",
+        "getRate": lambda value: float(value['data']['BCN']['quote']['EUR']['price']),
         "quantity": eval('{}'.format(cfg['bcn']['quantity'])),
         "eurQty": eval('{}'.format(cfg['bcn']['eurQty']))
     }
@@ -83,19 +84,27 @@ totals = {
     "print": ""
 }
 
-
 # calculations
 for key in sorted(currencies, key=lambda x: x["eurQty"], reverse=True):
-    currency = key
     try:
-        response = urllib.request.urlopen(currency["url"])
+        currency = key
+        req = urllib.request.Request(
+            currency["url"],
+            None,
+            {
+                'Accepts': 'application/json',
+                'X-CMC_PRO_API_KEY': cfg['coinmarketcapApiKey'],
+            }
+        )
+        response = urllib.request.urlopen(req)
         result = json.loads(response.read())
         boughtRate = currency["eurQty"] / currency["quantity"]
         currentRate = currency["currRate"] = currency['getRate'](result)
         currentAmount = (currency["currRate"] * currency["quantity"])
         boughtAmount = currency["eurQty"]
         currency["currProfit"] = diff = currentAmount - boughtAmount
-        currentProfitPerc = currency["currProfitPerc"] = diff / boughtAmount * 100
+        currentProfitPerc = currency["currProfitPerc"] = diff / \
+            boughtAmount * 100
         totals["total"] += diff
         if currency["code"] != "eth":
             totals["noEtherTotalDiff"] += diff
@@ -111,21 +120,19 @@ for key in sorted(currencies, key=lambda x: x["eurQty"], reverse=True):
         currency["print"] = "N/A| color=red"
         totals["total"] += 0
 
-    
-  
-            
+
 totals["print"] = 'Total\n€{:<18}({}%)'.format(
     locale.format_string("%.2f", totals["total"], grouping=True),
     locale.format_string("%.2f", totals["noEtherTotalDiff"] /
-                  totals["noEtherQtyEuro"] * 100, grouping=True)
+                         totals["noEtherQtyEuro"] * 100, grouping=True)
 )
 
 # printing
 print("{}% (₿{}%)|color={}".format(
     locale.format_string("%.2f", currencies[0]
-                  ["currProfitPerc"], grouping=True),
+                         ["currProfitPerc"], grouping=True),
     locale.format_string("%.2f", totals["noEtherTotalDiff"] /
-                  totals["noEtherQtyEuro"] * 100, grouping=True),
+                         totals["noEtherQtyEuro"] * 100, grouping=True),
     'green' if totals["noEtherTotalDiff"] > 0 else 'red'
 ))
 print("---")
