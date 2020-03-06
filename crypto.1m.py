@@ -15,7 +15,6 @@ yaml.warnings({'YAMLLoadWarning':False})
 with open(os.path.dirname(os.path.abspath(__file__)) + "/.env.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
-
 currencies = [
     {
         "code": "eth",
@@ -88,26 +87,33 @@ totals = {
 # calculations
 for key in sorted(currencies, key=lambda x: x["eurQty"], reverse=True):
     currency = key
-    response = urllib.request.urlopen(currency["url"])
-    result = json.loads(response.read())
-    boughtRate = currency["eurQty"] / currency["quantity"]
-    currentRate = currency["currRate"] = currency['getRate'](result)
-    currentAmount = (currency["currRate"] * currency["quantity"])
-    boughtAmount = currency["eurQty"]
-    currency["currProfit"] = diff = currentAmount - boughtAmount
-    currentProfitPerc = currency["currProfitPerc"] = diff / boughtAmount * 100
-    totals["total"] += diff
-    if currency["code"] != "eth":
-        totals["noEtherTotalDiff"] += diff
-        totals["noEtherQtyEuro"] += boughtAmount
+    try:
+        response = urllib.request.urlopen(currency["url"])
+        result = json.loads(response.read())
+        boughtRate = currency["eurQty"] / currency["quantity"]
+        currentRate = currency["currRate"] = currency['getRate'](result)
+        currentAmount = (currency["currRate"] * currency["quantity"])
+        boughtAmount = currency["eurQty"]
+        currency["currProfit"] = diff = currentAmount - boughtAmount
+        currentProfitPerc = currency["currProfitPerc"] = diff / boughtAmount * 100
+        totals["total"] += diff
+        if currency["code"] != "eth":
+            totals["noEtherTotalDiff"] += diff
+            totals["noEtherQtyEuro"] += boughtAmount
 
-    currency["print"] = "€{:<18}{:<15}{}%| color={}".format(
-        locale.format_string("%.2f", diff, grouping=True),
-        locale.format_string("%.4f", currentRate, grouping=True),
-        locale.format_string("%.2f", currentProfitPerc, grouping=True),
-        'green' if diff > 0 else 'red'
-    )
+        currency["print"] = "€{:<18}{:<15}{}%| color={}".format(
+            locale.format_string("%.2f", diff, grouping=True),
+            locale.format_string("%.4f", currentRate, grouping=True),
+            locale.format_string("%.2f", currentProfitPerc, grouping=True),
+            'green' if diff > 0 else 'red'
+        )
+    except urllib.error.HTTPError as e:
+        currency["print"] = "N/A| color=red"
+        totals["total"] += 0
 
+    
+  
+            
 totals["print"] = 'Total\n€{:<18}({}%)'.format(
     locale.format_string("%.2f", totals["total"], grouping=True),
     locale.format_string("%.2f", totals["noEtherTotalDiff"] /
@@ -115,7 +121,7 @@ totals["print"] = 'Total\n€{:<18}({}%)'.format(
 )
 
 # printing
-print("{}% ({})%|color={}".format(
+print("{}% (₿{}%)|color={}".format(
     locale.format_string("%.2f", currencies[0]
                   ["currProfitPerc"], grouping=True),
     locale.format_string("%.2f", totals["noEtherTotalDiff"] /
