@@ -7,7 +7,7 @@ import urllib.error
 import json
 
 def getValue(result, countryCode):
-    return list(filter(lambda x : x['country_code']==countryCode,result['confirmed']['locations']))[0]
+    return list(filter(lambda x : x['country_code']==countryCode,result['confirmed']['locations'])).
 
 url = 'https://coronavirus-tracker-api.herokuapp.com/all'
 response = urllib.request.urlopen(url)
@@ -24,5 +24,3 @@ strNL='NL \u271D {}| color=red () | color=green'.format(getValue(result, 'NL')['
 print(strNL)
 print("---")
 
-strNL='CH \u271D {}| color=red () | color=green'.format(getValue(result, 'CN')['latest']) 
-print(strNL)
