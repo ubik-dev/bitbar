@@ -12,7 +12,7 @@ locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')  # Use '' for auto, or force e.g.
 
 
 def getValue(result, countryCode):
-    return list(filter(lambda x: x['country'] == countryCode, result))[0]
+    return list(filter(lambda x: x['country'].lower() == countryCode.lower(), result))[0]
 
 
 url = "https://corona.lmao.ninja/all"
