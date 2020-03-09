@@ -6,32 +6,36 @@ import urllib.parse
 import urllib.error
 import json
 import locale
+import requests
 
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')  # Use '' for auto, or force e.g. to 'en_US.UTF-8'
 
 
 def getValue(result, countryCode):
-    return list(filter(lambda x: x['country_code'] == countryCode, result['confirmed']['locations']))[0]
+    return list(filter(lambda x: x['country'] == countryCode, result))[0]
 
 
-url = 'https://coronavirus-tracker-api.herokuapp.com/all'
-response = urllib.request.urlopen(url)
-result = json.loads(response.read())
-
+url = "https://corona.lmao.ninja/all"
+response = requests.request("GET", url, headers={}, data = {})
+result = json.loads(response.text)
 strWrld = '\u271D {:n}| color=red'.format(
-    result['latest']['confirmed']
+    result['cases']
 )
 print(strWrld)
 print("---")
 
+urlCountries = 'https://corona.lmao.ninja/countries'
+responseCountries = requests.request("GET", urlCountries, headers={}, data = {})
+resultCountries = json.loads(responseCountries.text)
+
 strIT = 'IT \u271D {:n}| color=red'.format(
-    getValue(result, 'IT')['latest']
+    getValue(resultCountries, 'Italy')['cases']
 )
 print(strIT)
 print("---")
 
 strNL = 'NL \u271D {:n}| color=red'.format(
-    getValue(result, 'NL')['latest']
+    getValue(resultCountries, 'Netherlands')['cases']
 )
 print(strNL)
 print("---")
