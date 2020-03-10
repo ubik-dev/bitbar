@@ -32,7 +32,7 @@ resultCountries = json.loads(responseCountries.text)
 countries = [
     {'code': 'IT', 'name': 'Italy'},
     {'code': 'NL', 'name': 'Netherlands'},
-    {'code': 'CH', 'name': 'Chin'},
+    {'code': 'CH', 'name': 'China'},
 ]
 
 for country in countries:
