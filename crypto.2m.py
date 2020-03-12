@@ -25,14 +25,7 @@ currencies = [
         "quantity": eval('{}'.format(cfg['eth']['quantity'])),
         "eurQty": eval('{}'.format(cfg['eth']['eurQty']))
     },
-    # {
-    #     "code": "eos",
-    #     "url":  "https://api.kraken.com/0/public/Ticker?pair=EOSEUR",
-    #     # "url": "https://coinmarketcap-nexuist.rhcloud.com/api/eth",
-    #     "getRate": lambda value: float(value['result']['EOSEUR']['c'][0]),
-    #     "quantity": eval('{}'.format(cfg['eos']['quantity'])),
-    #     "eurQty": eval('{}'.format(cfg['eos']['eurQty']))
-    # },
+    
     {
         "code": "eur",
         "url":  "https://api.kraken.com/0/public/Ticker?pair=EOSEUR",
@@ -98,14 +91,15 @@ for key in sorted(currencies, key=lambda x: x["eurQty"], reverse=True):
         )
         response = urllib.request.urlopen(req)
         result = json.loads(response.read())
-        boughtRate = currency["eurQty"] / currency["quantity"]
+        boughtRate = currency["eurQty"] / currency["quantity"] if currency["quantity"]>0 else 0
         currentRate = currency["currRate"] = currency['getRate'](result)
         currentAmount = (currency["currRate"] * currency["quantity"])
         boughtAmount = currency["eurQty"]
         currency["currProfit"] = diff = currentAmount - boughtAmount
-        currentProfitPerc = currency["currProfitPerc"] = diff / \
-            boughtAmount * 100
+        currentProfitPerc =  (diff / boughtAmount * 100) if boughtAmount > 0 and diff >0  else 0 
+        currency["currProfitPerc"] = currentProfitPerc
         totals["total"] += diff
+        
         if currency["code"] != "eth":
             totals["noEtherTotalDiff"] += diff
             totals["noEtherQtyEuro"] += boughtAmount
@@ -116,6 +110,7 @@ for key in sorted(currencies, key=lambda x: x["eurQty"], reverse=True):
             locale.format_string("%.2f", currentProfitPerc, grouping=True),
             'green' if diff > 0 else 'red'
         )
+        
     except:
         currency["print"] = "N/A| color=red"
         totals["total"] += 0
