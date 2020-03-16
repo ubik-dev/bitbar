@@ -20,7 +20,7 @@ url = "https://corona.lmao.ninja/all"
 response = requests.request("GET", url, headers={}, data={})
 result = json.loads(response.text)
 strWrld = '\u271D {:n}| color=red'.format(
-    result['cases']
+    result['cases']-result['deaths']-result['recovered']
 )
 print(strWrld)
 print("---")
@@ -37,9 +37,10 @@ countries = [
 
 for country in countries:
     try:
+        countryValue = getValue(resultCountries, country['name'])
         str = '{} \u271D {:n}| color=red'.format(
             country['code'],
-            getValue(resultCountries, country['name'])['cases']
+            countryValue['cases']-countryValue['deaths']-countryValue['recovered']
         )
         print(str)
         print("---")
@@ -48,20 +49,3 @@ for country in countries:
         print("---")
 
 
-# strIT = 'IT \u271D {:n}| color=red'.format(
-#     getValue(resultCountries, 'Italy')['cases']
-# )
-# print(strIT)
-# print("---")
-
-# strNL = 'NL \u271D {:n}| color=red'.format(
-#     getValue(resultCountries, 'Netherlands')['cases']
-# )
-# print(strNL)
-# print("---")
-
-# strCH = 'CH \u271D {:n}| color=red'.format(
-#     getValue(resultCountries, 'China')['cases']
-# )
-# print(strCH)
-# print("---")
